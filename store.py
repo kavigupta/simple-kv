@@ -1,5 +1,6 @@
 import os
 import shelve
+from google.cloud import storage
 
 from keys import key_hash
 
@@ -10,8 +11,8 @@ def store(key):
     h = key_hash(key)
     if h not in hashes:
         return None
-    try:
-        os.makedirs("data")
-    except:
-        pass
-    return shelve.open(os.path.join("data", h), "c")
+
+    # Enable Cloud Storage
+    client = storage.Client()
+    # Reference an existing bucket.
+    return client.get_bucket(h)

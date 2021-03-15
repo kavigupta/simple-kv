@@ -11,9 +11,10 @@ def get():
     s = store(request.args["api_key"])
     if s is None:
         return f"Error, key {request.args['api_key']} was invalid", 403
-    if request.args["k"] not in s:
+    blob = s.get_blob(request.args["k"])
+    if blob is None:
         return f"Error, key {request.args['key']} not found in database", 404
-    return s[request.args["k"]], 200
+    return s.download_as_string(), 200
 
 
 @app.route("/put", methods=["POST"])
@@ -23,13 +24,14 @@ def put():
         return f"Error, key {request.args['api_key']} was invalid", 403
     key, value = request.args["k"], request.data
     method = request.args.get("method", "replace")
+    blob = s.get_blob(request.args["k"])
     if method == "replace":
-        s[key] = value
+        blob.upload_from_string(value)
     elif method == "append":
-        s[key] += value
+        blob.upload_from_string(blob.download_as_string() + value)
     else:
         return f"Invalid method: {method}", 400
-    return f"Success, there are now {len(s)} keys", 200
+    return f"Success", 200
 
 
 if __name__ == "__main__":
