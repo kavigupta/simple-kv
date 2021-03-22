@@ -1,7 +1,7 @@
 import os
 from itertools import count
 
-from keys import all_hashes
+from keys import key_hash, all_hashes
 
 import firebase_admin
 from firebase_admin import credentials
