@@ -8,13 +8,15 @@ app = Flask(__name__)
 
 @app.route("/get", methods=["GET"])
 def get():
-    s = store(request.args["api_key"])
+    api_key = request.args["api_key"]
+    key = request.args["k"]
+    s = store(api_key)
     if s is None:
-        return f"Error, key {request.args['api_key']} was invalid", 403
-    blob = s.get_blob(request.args["k"])
-    if blob is None:
-        return f"Error, key {request.args['key']} not found in database", 404
-    return s.download_as_string(), 200
+        return f"Error, key {api_key} was invalid", 403
+    value = s.get(key)
+    if value is None:
+        return f"Error, key {key} not found in database", 404
+    return value, 200
 
 
 @app.route("/put", methods=["POST"])
@@ -23,12 +25,13 @@ def put():
     if s is None:
         return f"Error, key {request.args['api_key']} was invalid", 403
     key, value = request.args["k"], request.data
+    value = value.decode("utf-8")
     method = request.args.get("method", "replace")
-    blob = s.get_blob(request.args["k"])
+
     if method == "replace":
-        blob.upload_from_string(value)
+        s.put(key, value)
     elif method == "append":
-        blob.upload_from_string(blob.download_as_string() + value)
+        s.append(key, value)
     else:
         return f"Invalid method: {method}", 400
     return f"Success", 200
