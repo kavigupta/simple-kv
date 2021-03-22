@@ -36,6 +36,14 @@ def put():
         return f"Invalid method: {method}", 400
     return f"Success", 200
 
+@app.route("/clear", methods=["POST"])
+def clear():
+    s = store(request.args["api_key"])
+    if s is None:
+        return f"Error, key {request.args['api_key']} was invalid", 403
+    s.clear(request.args["k"])
+    return f"Success", 200
+
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)

@@ -28,6 +28,10 @@ class Store:
             result.append(value)
         return "".join(result)
 
+    def clear(self, key):
+        reference = self.reference.child(key)
+        reference.delete()
+
     def put(self, key, value):
         reference = self.reference.child(key)
         reference.delete()
@@ -36,7 +40,7 @@ class Store:
 
     def append(self, key, value):
         reference = self.reference.child(key)
-        length = reference.child("length").get()
+        length = reference.child("length").get() or 0
         reference.child("length").set(length + 1)
         reference.child(str(length)).set(value)
 
